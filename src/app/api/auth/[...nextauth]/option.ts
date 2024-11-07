@@ -21,14 +21,15 @@ export const authOptions: AuthOptions = {
                 if (!credentials?.email || !credentials?.password) {
                     return null;
                 }
+                dbConnect();
                 const user: IUser | null = await User.findOne({
                     email: credentials.email,
                 }).select("+password");
                 if (!user) {
                     throw new Error("User not found");
                 }
-                if (!user.matchPassword(credentials.password)) {
-                    throw new Error("Invalid password");
+                if (!(await user.matchPassword(credentials.password))) {
+                    throw new Error("Email and password do not match");
                 }
                 return user;
             },
