@@ -18,10 +18,15 @@ import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading } from "@/store/features/loadingSlice";
 
 export default function SignupPage() {
     const { toast } = useToast();
     const router = useRouter();
+    const loading = useSelector((state: any) => state.loading.loading);
+    const dispatch = useDispatch();
+
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -32,6 +37,7 @@ export default function SignupPage() {
         e.preventDefault();
 
         try {
+            dispatch(setLoading(true));
             const { data } = await axios.post("/api/signup", formData);
             toast({
                 title: "Success",
@@ -39,8 +45,9 @@ export default function SignupPage() {
                 variant: "success",
             });
             setTimeout(() => {
+                dispatch(setLoading(false));
                 router.push("/login");
-            }, 1000);
+            }, 500);
         } catch (error: any) {
             console.log(error);
             toast({
@@ -51,6 +58,7 @@ export default function SignupPage() {
                     "Something went wrong",
                 variant: "destructive",
             });
+            dispatch(setLoading(false));
         }
     };
 
@@ -78,7 +86,8 @@ export default function SignupPage() {
                                 <Input
                                     id="name"
                                     placeholder="Enter your name"
-                                    autoFocus={true}
+                                    autoFocus
+                                    disabled={loading}
                                     value={formData.name}
                                     onChange={(e) =>
                                         setFormData({
@@ -100,6 +109,7 @@ export default function SignupPage() {
                                 <Input
                                     id="email"
                                     type="email"
+                                    disabled={loading}
                                     value={formData.email}
                                     onChange={(e) =>
                                         setFormData({
@@ -140,7 +150,8 @@ export default function SignupPage() {
                 <CardFooter className="flex flex-col space-y-4">
                     <Button
                         form="signup"
-                        className="w-full bg-primary text-primary-foreground hover:bg-[hsl(221.2,83.2%,43.3%)]"
+                        disabled={loading}
+                        className="w-full bg-primary text-primary-foreground disabled:pointer-events-none disabled:opacity-50 hover:bg-[hsl(221.2,83.2%,43.3%)]"
                     >
                         Sign Up
                     </Button>
@@ -148,6 +159,7 @@ export default function SignupPage() {
                         onClick={() =>
                             signIn("google", { callbackUrl: "/dashboard" })
                         }
+                        disabled={loading}
                         variant="outline"
                         className="w-full border-border text-foreground"
                     >
@@ -156,12 +168,14 @@ export default function SignupPage() {
                     </Button>
                     <p className="text-sm text-center text-muted-foreground">
                         Already have an account?{" "}
-                        <Link
-                            href="/login"
-                            className="text-primary hover:underline"
-                        >
-                            Log in
-                        </Link>
+                        {!loading && (
+                            <Link
+                                href="/login"
+                                className="text-primary hover:underline"
+                            >
+                                Log in
+                            </Link>
+                        )}
                     </p>
                 </CardFooter>
             </Card>

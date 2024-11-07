@@ -17,10 +17,15 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading } from "@/store/features/loadingSlice";
 
 export default function LoginPage() {
     const { toast } = useToast();
     const router = useRouter();
+    const loading = useSelector((state: any) => state.loading.loading);
+    const dispatch = useDispatch();
+
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -28,6 +33,7 @@ export default function LoginPage() {
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
+            dispatch(setLoading(true));
             signIn("credentials", {
                 ...formData,
                 redirect: false,
@@ -38,6 +44,7 @@ export default function LoginPage() {
                         description: res.error,
                         variant: "destructive",
                     });
+                    dispatch(setLoading(false));
                 }
                 if (res?.ok && !res?.error) {
                     toast({
@@ -46,12 +53,12 @@ export default function LoginPage() {
                         variant: "success",
                     });
                     setTimeout(() => {
+                        dispatch(setLoading(false));
                         router.push("/dashboard");
-                    }, 1000);
+                    }, 500);
                 }
             });
         } catch (error: any) {
-            console.log(error);
             toast({
                 title: "Error",
                 description:
@@ -60,6 +67,7 @@ export default function LoginPage() {
                     "Something went wrong",
                 variant: "destructive",
             });
+            dispatch(setLoading(false));
         }
     };
 
@@ -87,6 +95,7 @@ export default function LoginPage() {
                                 <Input
                                     id="email"
                                     type="email"
+                                    disabled={loading}
                                     value={formData.email}
                                     onChange={(e) =>
                                         setFormData({
@@ -110,6 +119,7 @@ export default function LoginPage() {
                                 <Input
                                     id="password"
                                     type="password"
+                                    disabled={loading}
                                     value={formData.password}
                                     onChange={(e) =>
                                         setFormData({
@@ -129,7 +139,8 @@ export default function LoginPage() {
                     <Button
                         form="loginForm"
                         type="submit"
-                        className="w-full bg-primary text-[hsl(210,40%,98%)] hover:bg-[hsl(221.2,83.2%,43.3%)]"
+                        disabled={loading}
+                        className="w-full bg-primary text-[hsl(210,40%,98%)] disabled:pointer-events-none disabled:opacity-50 hover:bg-[hsl(221.2,83.2%,43.3%)]"
                     >
                         Login
                     </Button>
@@ -137,6 +148,7 @@ export default function LoginPage() {
                         onClick={() =>
                             signIn("google", { callbackUrl: "/dashboard" })
                         }
+                        disabled={loading}
                         variant="outline"
                         className="w-full border-border text-foreground"
                     >
@@ -145,12 +157,14 @@ export default function LoginPage() {
                     </Button>
                     <p className="text-sm text-center text-muted-foreground">
                         Don't have an account?{" "}
-                        <Link
-                            href="/signup"
-                            className="text-primary hover:underline"
-                        >
-                            Sign up
-                        </Link>
+                        {!loading && (
+                            <Link
+                                href="/signup"
+                                className="text-primary hover:underline"
+                            >
+                                Sign up
+                            </Link>
+                        )}
                     </p>
                 </CardFooter>
             </Card>

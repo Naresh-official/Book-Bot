@@ -4,6 +4,8 @@ import "./globals.css";
 import Navbar from "@/components/navbar/Navbar";
 import AuthContextProvider from "@/context/authContext";
 import { Toaster } from "@/components/ui/toaster";
+import StoreContextProvider from "@/context/storeContext";
+import LoadingModal from "@/components/LoadingIcon";
 
 const poppins = Poppins({
     subsets: ["latin"],
@@ -22,13 +24,16 @@ export default function RootLayout({
     return (
         <html lang="en">
             <AuthContextProvider>
-                <body className={`${poppins.className} antialiased`}>
-                    <main>
-                        <Navbar />
-                        {children}
-                    </main>
-                    <Toaster />
-                </body>
+                <StoreContextProvider>
+                    <body className={`${poppins.className} antialiased`}>
+                        <LoadingModal />
+                        <main>
+                            <Navbar />
+                            {children}
+                        </main>
+                        <Toaster />
+                    </body>
+                </StoreContextProvider>
             </AuthContextProvider>
         </html>
     );
