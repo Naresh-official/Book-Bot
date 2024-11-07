@@ -1,16 +1,19 @@
-"use client";
-
-import { useSession } from "next-auth/react";
-import React from "react";
-import { redirect } from "next/navigation";
+import DashboardFiles from "./components/DashboardFiles";
+import UploadButton from "./components/UploadButton";
 
 function dashboardPage() {
-    const { data: session, status } = useSession();
-
-    if (status !== "loading" && !session) {
-        return redirect("/api/auth/signin");
-    }
-    return <div>{session?.user?.name}</div>;
+    return (
+        <main className="mx-auto max-w-7xl md:p-10">
+            <div className="mt-8 flex flex-col items-start justify-between gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-center sm:gap-0">
+                <h1 className="mb-3 font-bold text-5xl text-gray-900">
+                    My Files
+                </h1>
+                <UploadButton isSubscribed={true} />
+            </div>
+            {/* display files */}
+            <DashboardFiles />
+        </main>
+    );
 }
 
 export default dashboardPage;

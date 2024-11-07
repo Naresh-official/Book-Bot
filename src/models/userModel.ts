@@ -6,6 +6,10 @@ export interface IUser extends Document {
     email: string;
     loggedInWithGoogle: boolean;
     password?: string;
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+    stripePriceId?: string;
+    stripeCurrentPeriodEnd?: Date;
     matchPassword(password: string): Promise<boolean>;
     createdAt: Date;
     updatedAt: Date;
@@ -27,6 +31,22 @@ const userSchema = new Schema(
         },
         password: {
             type: String,
+            select: false,
+        },
+        stripeCustomerId: {
+            type: String,
+            select: false,
+        },
+        stripeSubscriptionId: {
+            type: String,
+            select: false,
+        },
+        stripePriceId: {
+            type: String,
+            select: false,
+        },
+        stripeCurrentPeriodEnd: {
+            type: Date,
             select: false,
         },
     },

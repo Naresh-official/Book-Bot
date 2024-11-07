@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "@/store/features/loadingSlice";
+import LoadingModal from "@/components/LoadingIcon";
 
 export default function SignupPage() {
     const { toast } = useToast();
@@ -64,6 +65,7 @@ export default function SignupPage() {
 
     return (
         <div className="min-h-[90vh] flex items-center justify-center bg-background">
+            <LoadingModal />
             <Card className="w-[450px] border-2 shadow-lg">
                 <CardHeader>
                     <CardTitle className="text-2xl font-bold text-center text-foreground">

@@ -62,4 +62,7 @@ export const authOptions: AuthOptions = {
             return true;
         },
     },
+    pages: {
+        signIn: "/login",
+    },
 };
