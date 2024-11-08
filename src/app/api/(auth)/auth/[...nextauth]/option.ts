@@ -10,6 +10,9 @@ export const authOptions: AuthOptions = {
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID as string,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+            httpOptions: {
+                timeout: 10000,
+            },
         }),
         CredentialsProvider({
             name: "Credentials",
@@ -21,7 +24,7 @@ export const authOptions: AuthOptions = {
                 if (!credentials?.email || !credentials?.password) {
                     return null;
                 }
-                dbConnect();
+                await dbConnect();
                 const user: IUser | null = await User.findOne({
                     email: credentials.email,
                 }).select("+password");
@@ -43,7 +46,7 @@ export const authOptions: AuthOptions = {
         async signIn({ user, account }) {
             if (account?.provider === "google") {
                 try {
-                    dbConnect();
+                    await dbConnect();
                     const exitstUser: IUser | null = await User.findOne({
                         email: user.email,
                     });
