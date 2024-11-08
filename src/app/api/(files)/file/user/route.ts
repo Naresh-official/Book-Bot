@@ -11,7 +11,11 @@ export async function GET(request: Request) {
         const user: IUser | null = await User.findOne({
             email: session?.user?.email,
         });
-        const files: IFile[] | null = await File.find({ ownerId: user?._id });
+        const files: IFile[] | null = await File.find({
+            ownerId: user?._id,
+        }).sort({
+            createdAt: -1,
+        });
         if (files.length === 0) {
             return new NextResponse("No files found", { status: 404 });
         }

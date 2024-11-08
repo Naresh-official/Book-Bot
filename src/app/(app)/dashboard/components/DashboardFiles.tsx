@@ -1,4 +1,3 @@
-"use client";
 import {
     Card,
     CardDescription,
@@ -12,39 +11,58 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "@/store/features/loadingSlice";
 import { Ghost } from "lucide-react";
+import Link from "next/link";
 
-export default function DashboardFiles() {
+export default function DashboardFiles({
+    files,
+    fetched,
+}: {
+    files: IFile[];
+    fetched: boolean;
+}) {
     const loading = useSelector((state: any) => state.loading.loading);
-    const dispatch = useDispatch();
-
-    const [files, setFiles] = useState<IFile[]>([]);
-    const [fetched, setFetched] = useState(false);
-    useEffect(() => {
-        dispatch(setLoading(true));
-        async function getUserFiles() {
-            try {
-                const { data } = await axios.get("/api/file/user");
-                setFiles(data);
-            } catch (error: any) {
-                console.log(error?.message);
-            } finally {
-                dispatch(setLoading(false));
-                setFetched(true);
-            }
+    const getTimeDiff = (date: Date) => {
+        const now = new Date();
+        const diff = now.getTime() - date.getTime();
+        const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+        if (years > 0) {
+            return `${years} ${years > 1 ? "years" : "year"} ago`;
         }
-        getUserFiles();
-    }, []);
+        const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30));
+        if (months > 0) {
+            return `${months} ${months > 1 ? "months" : "month"} ago`;
+        }
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        if (days > 0) {
+            return `${days} ${days > 1 ? "days" : "day"} ago`;
+        }
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        if (hours > 0) {
+            return `${hours} ${hours > 1 ? "hours" : "hour"} ago`;
+        }
+        const minutes = Math.floor((diff / 1000 / 60) % 60);
+        if (minutes > 0) {
+            return `${minutes} ${minutes > 1 ? "minutes" : "minute"} ago`;
+        }
+        const seconds = Math.floor((diff / 1000) % 60);
+        return `${seconds} ${seconds > 1 ? "seconds" : "second"} ago`;
+    };
+
     return (
         <>
             {files && files.length > 0 ? (
                 <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-                    {files.map((file) => (
-                        <Card key={file._id} className="border-2 shadow-lg">
-                            <CardHeader>
-                                <CardTitle>{file.name}</CardTitle>
-                                <CardDescription>Description</CardDescription>
-                            </CardHeader>
-                        </Card>
+                    {files.map((file: IFile) => (
+                        <Link key={file._id} href={`/file/${file._id}`}>
+                            <Card className="border-2 shadow-md md:hover:scale-[1.005] md:hover:shadow-xl transition-shadow duration-200">
+                                <CardHeader>
+                                    <CardTitle>{file.name}</CardTitle>
+                                    <CardDescription>
+                                        {getTimeDiff(new Date(file.createdAt))}
+                                    </CardDescription>
+                                </CardHeader>
+                            </Card>
+                        </Link>
                     ))}
                 </div>
             ) : loading || !fetched ? (
